@@ -1,0 +1,210 @@
+import smtplib
+import speech_recognition as sr
+import pyttsx3
+from email.message import EmailMessage
+
+listener = sr.Recognizer()
+engine = pyttsx3.init()
+
+
+def talk(text):
+    engine.say(text)
+    engine.runAndWait()
+
+
+def get_info():
+    try:
+        with sr.Microphone() as source:
+            print('listening...')
+            voice = listener.listen(source)
+            print('Processing audio...')
+            info = listener.recognize_google(voice)
+            return info.lower()
+    except:
+        pass
+
+def audio_for_subject_and_message():
+    temp_list = list()
+    out_list = list()
+    try:
+        with sr.Microphone() as source:
+            print('listening...')
+            voice = listener.listen(source)
+            print('Processing audio...')
+            info = listener.recognize_google(voice)
+            for letter in info:
+                temp_list.append(letter)
+
+            for ind in range(0, len(temp_list)):
+                if ind == 0:
+                    out_list.append(temp_list[ind].upper())
+                else:
+                    out_list.append(temp_list[ind])
+            return ''.join(out_list)
+    except:
+        pass
+
+
+
+def send_email(receiver, subject, message):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    # Make sure to give app access in your Google account
+    server.login('projectmini144@gmail.com', 'miniproject144')
+    email = EmailMessage()
+    email['From'] = 'projectmini144@gmail.com'
+    email['To'] = receiver
+    email['Subject'] = subject
+    email.set_content(message)
+    server.send_message(email)
+
+
+email_list = {
+    'mine': 'sabima5757@gmail.com',
+    'yoga':'yogashanmugam1304@gmail.com',
+    'pro': 'taharat.amin2001@gmail.com'
+}
+
+
+def get_email_info():
+    senders_list=list()
+    print('Do you want to send email to a single user?')
+    talk('Do you want to send email to a single user?')
+    sm=get_info()
+    print(sm)
+    if sm=='yes':
+        print("Do you want to send email from your saved contacts?")
+        talk("Do you want to send email from your saved contacts?")
+        arc=get_info()
+        print(arc)
+        if arc=='yes':
+            while True:
+                print('To Whom you want to send email')
+                talk('To Whom you want to send email')
+                name = get_info()
+                print(name)
+
+                try:
+                    
+                    receiver = email_list[name]
+                    print(receiver)
+                    break
+
+                except:
+
+                    print('User not found. Please try again')
+                    talk('User not found. Please try again')
+                    continue
+
+        else:
+
+            print('Please speak the new email')
+            talk('Please speak the new email')
+            receiver= get_info().replace(' ','')
+            print(receiver)
+            print('Is the email correct?')
+            talk('Is the email correct?')
+            check = get_info()
+            print(check)
+            if check == 'yes':
+                pass
+            else:
+                print('Please type the email address')
+                talk('Please type the email address')
+                receiver = input('Type email address below \n')
+
+        print('What is the subject of your email?')
+        talk('What is the subject of your email?')
+        subject = audio_for_subject_and_message()
+        print(subject)
+        print('Is the email subject correct?')
+        talk('Is the email subject correct?')
+        q = get_info()
+        if q == 'yes':
+            pass
+        else:
+            talk('Type the subject below')
+            subject = input('Type the subject below \n')
+        print('Tell me the text in your email')
+        talk('Tell me the text in your email')
+        message = audio_for_subject_and_message()
+        print(message)
+        print('Is the message correct?')
+        talk('Is the message coorect?')
+        r = get_info()
+        if r == 'yes':
+            pass
+        else:
+            talk('Type the message below')
+            message = input('Type the message below \n')
+        send_email(receiver, subject, message)
+        print('Your email is sent')
+        talk('Your email is sent')
+        
+    else:
+        while True:
+            print('Do you want to add a new receiver')
+            talk('Do you want to add a new receiver')
+            r=get_info()
+            print(r)
+            if r=='yes':
+                print('Please speak the new email')
+                talk('Please speak the new email')
+                receiver= get_info().replace(' ','')
+                print(receiver)
+                print('Is the email correct?')
+                talk('Is the email correct?')
+                check = get_info()
+                print(check)
+                if check == 'yes':
+                    senders_list.append(receiver)
+                else:
+                    print('Please type the email address')
+                    talk('Please type the email address')
+                    receiver = input('Type email address below \n')
+                    senders_list.append(receiver)
+            else:
+                break
+
+        for email_address in senders_list:
+            print(email_address)
+            print('What is the subject of your email?')
+            talk('What is the subject of your email?')
+            subject = audio_for_subject_and_message()
+            print(subject)
+            print('Is the email subject correct?')
+            talk('Is the email subject correct?')
+            q = get_info()
+            if q == 'yes':
+                pass
+            else:
+                talk('Type the subject below')
+                subject = input('Type the subject below \n')
+            print('Tell me the text in your email')
+            talk('Tell me the text in your email')
+            message = audio_for_subject_and_message()
+            print(message)
+            print('Is the message correct?')
+            talk('Is the message coorect?')
+            r = get_info()
+            if r == 'yes':
+                pass
+            else:
+                talk('Type the message below')
+                message = input('Type the message below \n')
+            send_email(receiver, subject, message)
+            print('Your email is sent')
+            talk('Your email is sent')
+
+    print('Do you want to send more email?')
+    talk('Do you want to send more email?')
+    send_more = get_info()
+    if 'yes' in send_more:
+        get_email_info()
+    else:
+        print('Thank you for using this app!')
+        talk('Thank you for using this app!')
+
+
+get_email_info()
+
